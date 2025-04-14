@@ -2,7 +2,27 @@
 
 This project uses Graphical Lasso to analyze the conditional independence structure between neurons in transformer models. By analyzing activations across many samples, we can determine which neurons are conditionally independent, providing insights into how the model processes information.
 
-> Note: This is an ongoing independent ML interp research project, and a heavy draft
+> Note: This is an ongoing independent ML interp research project, and a heavy draft.
+
+## The Idea
+
+My research background is in deconvolution problems and MCMC, and graphical LASSO gets used a lot in biological systems. 
+If we assume that a key interpretability issue in LLMs is superposition (e.g. linear features that are mixed), then one alternative hypothesis is that linearity can be embedded in mutually dependent features, which we could dissect at the MLP layer level of an LLM. 
+It's not an exact match, but toes up nicely with the idea of circuits pioneered by other interp work. 
+Here I have an initial proof of concept of our ability to generate graphs showing co-activated features across a set of inputs.
+The best proof of concept that I'm shooting for would be identifying graphs at the MLP level that we could fix activations to and steer model outputs.
+So far, I've been using the IMDB dataset as input but I don't love it, it's pretty broad in terms of content vs specificity of something like sentiment.
+
+Here's the things that need to get done to get us there:
+- [x] Build initial proof of concept that we can generate graphs from MLPs by co-activation
+- [ ] Synthetically generate topically-oriented data (e.g. refusals, locations, language) for testing using a big model
+    - [ ] BONUS: Generate golden-gate bridge based content ala golden gate claude
+- [ ] Implement steering based off of individual layer graphs, and develop the underlying math
+    - [ ] Test the simplest thing - rescale each GLASSO module's MLP activations by its weight matrix
+    - [ ] See if feature sensitivity varies over the depth of all layers?
+- [ ] Develop a faster GLASSO implementation in Torch/JAX since current implementations are slow and don't scale well
+    - [ ] Consider the dual-primal method proposed by Dallakyan (2403.12357)
+- [ ] See if this generalizes into circuits over layers and study the underlying math a bit more
 
 ## Features
 
@@ -28,10 +48,6 @@ This project uses Graphical Lasso to analyze the conditional independence struct
 ### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/glasso_interp.git
-cd glasso_interp
-
 # Create and activate a virtual environment
 uv venv
 source .venv/bin/activate
