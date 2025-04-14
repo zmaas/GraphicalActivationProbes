@@ -1,0 +1,17 @@
+torch
+transformers
+numpy
+scikit-learn
+# Using GGLasso for more performant graphical lasso implementation
+gglasso
+scikit-learn-extra
+datasets
+pandas
+tqdm
+matplotlib
+pytest
+ruff
+mypy
+types-tqdm
+# For graph visualization
+graphviz

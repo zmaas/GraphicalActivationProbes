@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "glasso_interp"
+version = "0.1.0"
+description = "Graphical Lasso Neural Network Interpretability"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+dependencies = [
+    "accelerate>=1.0.1",
+    "datasets>=3.1.0",
+    "matplotlib>=3.7.5",
+    "numpy>=1.24.4",
+    "pandas>=2.0.3",
+    "setuptools>=75.3.2",
+    "tqdm>=4.67.1",
+    "transformers>=4.46.3",
+]
+
+[tool.pytest]
+testpaths = ["tests"]
+
+[tool.ruff]
+select = ["E", "F", "I", "UP"]
+line-length = 100
+target-version = "py38"
+
+[tool.ruff.isort]
+lines-after-imports = 2
+known-first-party = ["src"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+ignore_missing_imports = true
