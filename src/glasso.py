@@ -29,11 +29,11 @@ def prepare_activation_matrix(activations: torch.Tensor) -> np.ndarray:
     return act_standardized
 
 def run_glasso(activation_matrix: np.ndarray, alpha: float = 0.1) -> Tuple[np.ndarray, np.ndarray]:
-    """Run Graphical Lasso on activation matrix using GGLasso for better performance.
+    """Run Graphical Lasso on activation matrix.
     
     Args:
         activation_matrix: Matrix of standardized activations (samples x neurons)
-        alpha: Regularization parameter for GLasso. If None, use default value.
+        alpha: Regularization parameter for GLasso.
         
     Returns:
         Tuple of (precision matrix, covariance matrix)
@@ -42,7 +42,7 @@ def run_glasso(activation_matrix: np.ndarray, alpha: float = 0.1) -> Tuple[np.nd
     n_samples, n_features = activation_matrix.shape
     emp_cov = np.dot(activation_matrix.T, activation_matrix) / n_samples
     
-    # Create a glasso_problem object with the empirical covariance
+    # Use GGLasso implementation
     problem = glasso_problem(S=emp_cov, N=n_samples, do_scaling=False)
     problem.set_reg_params(reg_params={"lambda1": 0.1, "lambda2": 0.01})
     
@@ -52,7 +52,6 @@ def run_glasso(activation_matrix: np.ndarray, alpha: float = 0.1) -> Tuple[np.nd
     # Get precision and covariance matrices
     precision_matrix = problem.solution.precision_
     covariance_matrix = emp_cov
-    print(precision_matrix)
     
     return precision_matrix, covariance_matrix
 

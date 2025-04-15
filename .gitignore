@@ -29,6 +29,14 @@ venv/
 ENV/
 env/
 
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Cache
+cache/
+
 # Jupyter Notebooks
 .ipynb_checkpoints
 *.ipynb

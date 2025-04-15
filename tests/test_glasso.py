@@ -64,7 +64,7 @@ def test_run_glasso(mock_activations):
     # Prepare activation matrix
     act_matrix = prepare_activation_matrix(mock_activations)
     
-    # Run GLasso with default alpha
+    # Run GLasso
     precision, covariance = run_glasso(act_matrix, alpha=0.1)
     
     # Check shapes
@@ -79,3 +79,4 @@ def test_run_glasso(mock_activations):
     
     # Higher alpha should result in more zeros
     assert np.count_nonzero(np.abs(precision_higher_reg) < 1e-5) >= np.count_nonzero(np.abs(precision) < 1e-5)
+
