@@ -1,5 +1,6 @@
 from typing import Dict, List, Optional, Tuple, Union
 import os
+import pickle
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,6 +8,7 @@ import torch
 from gglasso.problem import glasso_problem
 from sklearn.preprocessing import StandardScaler
 import graphviz
+import networkx as nx
 
 def prepare_activation_matrix(activations: torch.Tensor) -> np.ndarray:
     """Prepare activation matrix for GLasso.
@@ -129,10 +131,98 @@ def plot_precision_matrix(precision_matrix: np.ndarray,
         plt.savefig(save_path)
     plt.close()
     
+def connections_to_networkx(connections: Dict[int, List[int]], 
+                            layer_name: str,
+                            weights: Optional[np.ndarray] = None) -> nx.DiGraph:
+    """Convert neuron connections to a NetworkX graph.
+    
+    Args:
+        connections: Dictionary mapping neurons to their connected neurons
+        layer_name: Name of the layer
+        weights: Precision matrix to use for edge weights (optional)
+        
+    Returns:
+        NetworkX directed graph
+    """
+    # Create a directed graph
+    G = nx.DiGraph(name=layer_name)
+    
+    # Add all neurons as nodes first
+    all_neurons = set(connections.keys())
+    for neuron_list in connections.values():
+        all_neurons.update(neuron_list)
+    
+    for neuron in all_neurons:
+        G.add_node(neuron, label=f"Neuron {neuron}")
+    
+    # Add edges with weights if provided
+    for source, targets in connections.items():
+        for target in targets:
+            if weights is not None:
+                # Use the absolute value of the precision matrix entry as the weight
+                weight = abs(weights[source, target])
+                G.add_edge(source, target, weight=weight)
+            else:
+                G.add_edge(source, target)
+    
+    return G
+
+def save_networkx_graph(G: nx.DiGraph, save_path: str) -> None:
+    """Save a NetworkX graph to a file.
+    
+    Args:
+        G: NetworkX graph
+        save_path: Path to save the graph
+    """
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    
+    # Save as pickle
+    with open(save_path, 'wb') as f:
+        pickle.dump(G, f)
+        
+def load_networkx_graph(load_path: str) -> nx.DiGraph:
+    """Load a NetworkX graph from a file.
+    
+    Args:
+        load_path: Path to load the graph from
+        
+    Returns:
+        NetworkX graph
+    """
+    with open(load_path, 'rb') as f:
+        G = pickle.load(f)
+    return G
+
+def merge_networkx_graphs(graphs: List[nx.DiGraph], layer_name: str) -> nx.DiGraph:
+    """Merge multiple NetworkX graphs into one.
+    
+    Args:
+        graphs: List of NetworkX graphs to merge
+        layer_name: Name of the merged layer
+        
+    Returns:
+        Merged NetworkX graph
+    """
+    merged_graph = nx.DiGraph(name=f"{layer_name}_merged")
+    
+    # Add all nodes and edges from all graphs
+    for i, G in enumerate(graphs):
+        # Add a prefix to each node to distinguish nodes from different graphs
+        for node in G.nodes():
+            merged_graph.add_node(f"g{i}_{node}", label=f"G{i} Neuron {node}", graph_id=i)
+        
+        # Add edges with the same prefix
+        for u, v, data in G.edges(data=True):
+            merged_graph.add_edge(f"g{i}_{u}", f"g{i}_{v}", **data, graph_id=i)
+    
+    return merged_graph
+
 def create_graphviz_dot(connections: Dict[int, List[int]], 
                        layer_name: str,
                        save_path: Optional[str] = None,
-                       render: bool = False) -> Union[str, graphviz.Digraph]:
+                       render: bool = False,
+                       precision_matrix: Optional[np.ndarray] = None) -> Union[str, graphviz.Digraph, nx.DiGraph]:
     """Create a GraphViz DOT representation of neuron connections.
     
     Args:
@@ -140,10 +230,21 @@ def create_graphviz_dot(connections: Dict[int, List[int]],
         layer_name: Name of the layer (used for graph title)
         save_path: Path to save the DOT file (optional)
         render: Whether to render the graph using the graphviz library (returns Digraph object)
+        precision_matrix: Precision matrix to use for edge weights (optional)
         
     Returns:
-        String containing the DOT representation or graphviz.Digraph object if render=True
+        String containing the DOT representation, graphviz.Digraph object if render=True,
+        or NetworkX graph
     """
+    # Create NetworkX graph
+    nx_graph = connections_to_networkx(connections, layer_name, precision_matrix)
+    
+    # Save NetworkX graph if path is provided
+    if save_path:
+        nx_path = f"{os.path.splitext(save_path)[0]}.nx"
+        save_networkx_graph(nx_graph, nx_path)
+        print(f"NetworkX graph saved to {nx_path}")
+    
     if render:
         # Create Digraph object
         dot = graphviz.Digraph(name=layer_name, comment=f"Neuron connections for {layer_name}")
@@ -206,4 +307,4 @@ def create_graphviz_dot(connections: Dict[int, List[int]],
             with open(save_path, 'w') as f:
                 f.write(dot_string)
         
-        return dot_string
+        return nx_graph

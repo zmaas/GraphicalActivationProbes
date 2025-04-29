@@ -15,6 +15,7 @@ mypy
 types-tqdm
 # For graph visualization
 graphviz
+networkx
 # For synthetic data generation
 openai
 python-dotenv
