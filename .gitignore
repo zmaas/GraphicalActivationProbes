@@ -39,7 +39,6 @@ cache/
 
 # Jupyter Notebooks
 .ipynb_checkpoints
-*.ipynb
 
 # Coverage reports
 htmlcov/
