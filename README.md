@@ -1,95 +1,19 @@
-# Graphical Lasso Neural Network Interpretability
+# Graphical Activation Probes of Transformer Models
 
-This project uses Graphical Lasso (GLasso) to interpret neural networks by analyzing the dependency structure between neurons.
+This repository contains research on developing graphical methods to interpret LLMs to understand the dependency structure between neurons.
 
-## Overview
+The goal of this work is to develop a probe for LLMs that lies between linear probes and SAEs in function, building on the Linear Representation Hypothesis.
 
-The main idea is to use Graphical Lasso to infer a sparse precision matrix from activation patterns, revealing the conditional independence structure between neurons. This structure can be visualized as a graph, offering insights into how information flows through the neural network.
+Here's a cool early result - when testing an initial design of this probe on GPT-2 + a 10k subset of The Pile, this probing approach yields semantically meaningful graphs connecting SAE neurons. For example, we discover a link in coactivation between the following SAE neurons: `mentions of catastrophic events or overwhelming situations <-> phrases related to fox news channel`
 
-## Features
+For an overview of experiments and results, please see [/log/README.md](/log/README.md).
+The current state of the repository is as follows:
 
-- Collect activations from transformer models (specifically MLP layers)
-- Apply Graphical Lasso to determine conditional independence structure
-- Visualize neuron connections using heatmaps and graph visualizations
-- Synthetic data generation for specific topics
-- Compare neuron activation patterns across different topics
-
-## Installation
-
-1. Clone the repository:
-   ```
-   git clone https://github.com/yourusername/glasso_interp.git
-   cd glasso_interp
-   ```
-
-2. Create and activate a virtual environment:
-   ```
-   uv venv
-   source .venv/bin/activate
-   ```
-
-3. Install the required packages:
-   ```
-   uv pip install -r requirements.txt
-   ```
-
-4. Set up environment variables:
-   ```
-   cp .env.example .env
-   ```
-   Then edit the `.env` file to add your OpenAI API key.
-
-## Usage
-
-### Basic Usage
-
-Run the analysis on the IMDB dataset:
-
-```bash
-python src/main.py --dataset imdb --model google/gemma-3-1b-it --output_dir results/imdb
-```
-
-### Using Synthetic Data
-
-Generate synthetic data for a specific topic:
-
-```bash
-python examples/synthetic_topic.py --synthetic_topic "quantum computing" --num_examples 60
-```
-
-### Compare Topics
-
-Compare neuron activation patterns across different topics:
-
-```bash
-python examples/compare_topics.py --compare_topics "climate change" "artificial intelligence" --num_examples 60
-```
-
-## Example Output
-
-The analysis outputs:
-- Precision matrix heatmaps
-- GraphViz DOT files representing the neuron connection structure
-- Rendered graph visualizations (if GraphViz is installed)
-- For topic comparisons, side-by-side visualizations and difference maps
-
-## Implementation Details
-
-- Uses a modified transformer model with hooks to capture activations
-- Applies Graphical Lasso with a tunable regularization parameter (alpha)
-- Implements both single-topic analysis and multi-topic comparison workflows
-- Caches synthetic data to avoid regenerating examples during development
-- Optimized to handle large activation matrices efficiently
-
-## Roadmap
-
-- [x] Initial implementation with IMDB dataset
-- [x] Add synthetic data generation for specific topics
-- [x] Implement topic comparison visualization
-- [ ] Extend to other model architectures beyond transformers
-- [ ] Add interactive visualization options
-- [ ] Develop neuron/pathway importance scoring
-- [ ] Add causal intervention experiments
+- /log/ - Contains ongoing research logs and experiments.
+- /notebooks/ - Contains Jupyter notebooks on active research, ongoing
+- /src/ - Contains early source code for GLasso-based activation probes, not actively used.
+- /tests/ - Documentation and examples of how to use the GLasso-based activation probes.
+- /test_results/ - Preliminary results on activation probing
 
 ## License
 
